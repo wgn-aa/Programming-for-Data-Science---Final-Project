@@ -8,6 +8,7 @@ artists_df = pd.read_csv("Artists.csv")
 
 print("shape: ",artists_df.shape)
 
+
 #View the data
 print("\nhead: \n", artists_df.head())
 print("\ntail: \n", artists_df.tail())
@@ -25,10 +26,15 @@ print("\nDuplicate values: \n", artists_df.duplicated().sum())
 
 #Find null values
 print("\nNull values: \n", artists_df.isnull().sum())
-percentage_missing_value = (artists_df.isnull().sum()/(len(artists_df)))*100 
 #There are some null value in column Gender(17%) and Contry(34%) #!!!!do something with null value
 
+percentage_missing_value = (artists_df.isnull().sum()/(len(artists_df)))*100 
 print("\nPercentage of missing values in each column: \n", percentage_missing_value)
+
+print("\nNull values for Gender: \n", artists_df[artists_df.Gender.isnull()])
+print("\nNull values for Country: \n", artists_df[artists_df.Country.isnull()])
+
+
 
 #data reduction
 #drop bc do not add value to our analysis.
@@ -48,4 +54,31 @@ print("\nColumn: \n", artists_df_reduction.columns)
 
 
 
+#pour supprimer les valeur null d'une colonne
+#artists_df.dropna(subset=['Country'], inplace=True)
+#print("\ninfo: \n", artists_df.info())
+
+#affiche que les gens qui ont + de 3 ans et moins de 100 ans
+normal_age = (artists_df.Age > 3) & (artists_df.Age < 100)
+
+clean_artists_df = artists_df[normal_age]
+
+print("\ninfo: \n", clean_artists_df.describe().T)
+
+print("\nold mean: ",artists_df.Age.mean())
+print("new mean: ",clean_artists_df.Age.mean())
+
+#remplacer les valeurs bizarre par la mean
+contraire_normal_age = (artists_df.Age < 3.0) | (artists_df.Age > 100.0)
+
+mean_clean_artists_df = artists_df.copy()
+mean_clean_artists_df[contraire_normal_age] = clean_artists_df.Age.mean().astype(int)
+print("\ninfo: \n", mean_clean_artists_df.describe().T)
+print("\nreplace odd value with mean: ",mean_clean_artists_df.Age.mean())
+
+
+#replace the problematic values with samples from a normal distribution
+#faut peut etre remplacer les valeur bizarre par ce tableau
+normal_clean = np.random.normal(loc=clean_artists_df.Age.mean(), scale=clean_artists_df.Age.std(), size=artists_df[contraire_normal_age].shape[0])
+print("\nreplace problematic values with samples from a normal distribution: ",normal_clean.mean())
 
