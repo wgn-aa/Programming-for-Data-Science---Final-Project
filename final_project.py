@@ -1,5 +1,6 @@
 import pandas as pd 
 import numpy as np 
+import matplotlib.pyplot as plt
 
 #Reading Dataset
 
@@ -82,3 +83,50 @@ print("\nreplace odd value with mean: ",mean_clean_artists_df.Age.mean())
 normal_clean = np.random.normal(loc=clean_artists_df.Age.mean(), scale=clean_artists_df.Age.std(), size=artists_df[contraire_normal_age].shape[0])
 print("\nreplace problematic values with samples from a normal distribution: ",normal_clean.mean())
 
+
+male=0
+female=0
+mixed=0
+other=0
+for i in artists_df.Gender:
+    if i == 'male':
+        male+=1
+    elif i == 'female':
+        female+=1
+    elif i == 'mixed':
+        mixed +=1
+    else:
+        other +=1
+
+print("male: ",male)
+occurrences = {'male': male, 'female': female, 'mixed':mixed, 'unknow':other}
+
+#faire des sous-graph
+fig_1 = plt.figure(figsize=(6,6))
+ax_1 = fig_1.add_subplot(2, 2, 1) #1er sous graph
+ax_2 = fig_1.add_subplot(2, 2, 2) #2e sous graph
+ax_3 = fig_1.add_subplot(2, 2, 3)
+ax_4 = fig_1.add_subplot(2, 2, 4)
+
+ax_1.pie(list(occurrences.values()), labels=occurrences.keys())
+ax_1.set_title('Gender Distribution')
+
+#faire que les 10 plus grand pays
+ax_2.bar(artists_df.Country.value_counts().index, artists_df.Country.value_counts())
+ax_2.set_title('Distribution by Country')
+ax_2.set_xticklabels(ax_2.get_xticklabels(), rotation=90)  # Rotate x-axis labels for better visibility
+
+ax_3.scatter(artists_df.Age, artists_df.Followers)
+ax_3.set_title('Age vs. Followers')
+ax_3.set_xlabel('Age')
+ax_3.set_ylabel('Followers')
+
+ax_4.hist(artists_df.Age, bins=100, color='skyblue', edgecolor='black')
+ax_4.set_title('Age Distribution')
+ax_4.set_xlabel('Age')
+ax_4.set_ylabel('Frequency')
+
+ax_1.legend()
+ax_4.legend()
+plt.tight_layout()
+plt.show()
