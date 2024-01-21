@@ -58,6 +58,9 @@ print("\nColumn: \n", artists_df_reduction.columns)
 #pour supprimer les valeur null d'une colonne
 #artists_df.dropna(subset=['Country'], inplace=True)
 #print("\ninfo: \n", artists_df.info())
+#print("\nDuplicate values: \n", artists_df.duplicated().sum()) 
+#print("occu: ",artists_df["Country"].value_counts())
+
 
 #affiche que les gens qui ont + de 3 ans et moins de 100 ans
 normal_age = (artists_df.Age > 3) & (artists_df.Age < 100)
@@ -83,7 +86,7 @@ print("\nreplace odd value with mean: ",mean_clean_artists_df.Age.mean())
 normal_clean = np.random.normal(loc=clean_artists_df.Age.mean(), scale=clean_artists_df.Age.std(), size=artists_df[contraire_normal_age].shape[0])
 print("\nreplace problematic values with samples from a normal distribution: ",normal_clean.mean())
 
-
+'''
 male=0
 female=0
 mixed=0
@@ -130,3 +133,72 @@ ax_1.legend()
 ax_4.legend()
 plt.tight_layout()
 plt.show()
+'''
+
+
+import seaborn as sns
+#sns.pairplot(clean_artists_df, hue='Gender')
+#plt.show()
+#les deux truc les plus facile à prédire c'est la popularité en fonction des followers (ou le contraire)
+#à la limite l'age en fonction des follower mais bof bof enfaite
+
+
+
+#defining input features and target variable
+X = clean_artists_df["Popularity"]
+y = clean_artists_df["Followers"]
+#Split for Training and Testing
+from sklearn.model_selection import train_test_split 
+from sklearn.linear_model import LinearRegression 
+from sklearn.preprocessing import PolynomialFeatures 
+from sklearn.metrics import mean_absolute_error
+
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state = 1)
+
+##
+X_train_df, X_test_df  = pd.DataFrame(X_train),pd.DataFrame(X_test)
+##
+
+#Model Development and Evaluation
+lin = LinearRegression()
+
+poly = PolynomialFeatures(degree=3)
+#met dans un tableau x^0,x^1,x^2.. pour chaque valeur de x_train
+X_poly_train = poly.fit_transform(X_train_df)
+#X_test_poly = poly.transform(X_test)
+##
+X_test_poly = poly.fit_transform(X_test_df)
+
+##
+
+
+#poly.fit(X_poly_train, y_train)
+lin = lin.fit(X_poly_train, y_train)
+##
+coefficient = lin.coef_
+intercept = lin.intercept_
+
+x_axis = np.arange(5,110,0.1)
+response = intercept + coefficient[1]* x_axis + coefficient[2]*x_axis**2 + coefficient[3]*x_axis**3
+
+plt.scatter(clean_artists_df["Popularity"], clean_artists_df["Followers"], color = 'b')
+plt.plot(x_axis, response, color = 'r')
+plt.show()
+
+
+###
+
+y_pred = lin.predict(X_test_poly)
+mean_absolute_error(y_test, y_pred)
+
+
+y_pred_train = lin.predict(X_poly_train)
+mean_absolute_error(y_train, y_pred_train)
+
+
+
+
+
+
+
