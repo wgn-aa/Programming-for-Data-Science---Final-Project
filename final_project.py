@@ -1,7 +1,7 @@
 import pandas as pd 
 import numpy as np 
 import matplotlib.pyplot as plt
-
+import streamlit as st
 #Reading Dataset
 
 #Load the data
@@ -86,7 +86,7 @@ print("\nreplace odd value with mean: ",mean_clean_artists_df.Age.mean())
 normal_clean = np.random.normal(loc=clean_artists_df.Age.mean(), scale=clean_artists_df.Age.std(), size=artists_df[contraire_normal_age].shape[0])
 print("\nreplace problematic values with samples from a normal distribution: ",normal_clean.mean())
 
-'''
+
 male=0
 female=0
 mixed=0
@@ -133,12 +133,12 @@ ax_1.legend()
 ax_4.legend()
 plt.tight_layout()
 plt.show()
-'''
+
 
 
 import seaborn as sns
-#sns.pairplot(clean_artists_df, hue='Gender')
-#plt.show()
+fig2 = sns.pairplot(clean_artists_df, hue='Gender')
+plt.show()
 #les deux truc les plus facile à prédire c'est la popularité en fonction des followers (ou le contraire)
 #à la limite l'age en fonction des follower mais bof bof enfaite
 
@@ -198,7 +198,30 @@ mean_absolute_error(y_train, y_pred_train)
 
 
 
+st.header("Programming for Data Science - Final Project")
+st.subheader("Subheader")
+st.code('''    
+plt.scatter(clean_artists_df["Popularity"], clean_artists_df["Followers"], color = 'b')
+plt.plot(x_axis, response, color = 'r')
+plt.show()
+''')
 
+#sidebar c'est la fenetre sur le coté qu'on ouvre ou qu'on ferme pour gagner de la place
+#checkbox, il faut cocher pour que les valeur à l'intérieur de la condition s'affiche
+if st.sidebar.checkbox("Show fig"):
+    #on peut le faire qu'avec les object qui peuve etre print
+    st.write("A __short__ explanation of the project")
+    #pas besoin de faire plt.show pour monter les graphique 
+    st.write(fig_1)
 
+col_1, col_2 = st.columns(2)
+with col_1:
+    st.write("Column 1: ")
+    st.write(fig_1)
+    st.caption("Caption")
+
+with col_2:
+    st.write("Column 2: ")
+    st.write(fig_1)
 
 
