@@ -223,6 +223,7 @@ axes[1,2].set_ylabel('Number of followers')
 
 '''
 artist_filtered_country_df.groupby("Gender").mean().sort_values(by= artist_filtered_country_df['Country'].value_counts(), ascending = False).head(30)
+artists_df.groupby(['Country', 'Name']).mean()
 '''
 # Count occurrences number by country 
 occurrences_by_country = artist_filtered_country_df['Country'].value_counts().reset_index()
@@ -266,15 +267,13 @@ plt.tight_layout()
 
 fig2 = sb.pairplot(normal_clean_artist_df, hue='Gender')
 sb.relplot(x="Popularity",y="Followers", hue='Gender', data = normal_clean_artist_df)
-plt.show()
+#plt.show()
 #les deux truc les plus facile à prédire c'est la popularité en fonction des followers (ou le contraire)
 #à la limite l'age en fonction des follower mais bof bof enfaite
 
 
 
-#defining input features and target variable
-X = clean_artists_df["Popularity"]
-y = clean_artists_df["Followers"]
+
 #Split for Training and Testing
 from sklearn.model_selection import train_test_split 
 from sklearn.linear_model import LinearRegression 
@@ -282,47 +281,75 @@ from sklearn.preprocessing import PolynomialFeatures
 from sklearn.metrics import mean_absolute_error
 
 
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state = 1)
+#DATA
 
-##
-X_train_df, X_test_df  = pd.DataFrame(X_train),pd.DataFrame(X_test)
-##
+#defining input features and target variable
+x = clean_artists_df["Popularity"]
+y = clean_artists_df["Followers"]
 
-#Model Development and Evaluation
-lin = LinearRegression()
+#Divide data into training and test sets
+x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.25, random_state = 42)
+X_train_df, X_test_df  = pd.DataFrame(x_train),pd.DataFrame(x_test)
 
+
+#TRAINING
+
+#Feature(X_train_df and X_test_df) transformation with degree 3 polynomial regression :
 poly = PolynomialFeatures(degree=3)
-#met dans un tableau x^0,x^1,x^2.. pour chaque valeur de x_train
-X_poly_train = poly.fit_transform(X_train_df)
-#X_test_poly = poly.transform(X_test)
-##
-X_test_poly = poly.fit_transform(X_test_df)
+X_poly_train = poly.fit_transform(X_train_df) #met dans un tableau x^0,x^1,x^2.. pour chaque valeur de x_train
+X_poly_test = poly.fit_transform(X_test_df)
 
-##
+#Training the linear regression model with train polynomial features
+model = LinearRegression()
+model = model.fit(X_poly_train, y_train)
+
+print("\nCoefficient of the model: ",model.coef_)
+print("Intercept of the model: ",model.intercept_)
 
 
-#poly.fit(X_poly_train, y_train)
-lin = lin.fit(X_poly_train, y_train)
-##
-coefficient = lin.coef_
-intercept = lin.intercept_
+#PREDICTION 
 
-x_axis = np.arange(5,110,0.1)
-response = intercept + coefficient[1]* x_axis + coefficient[2]*x_axis**2 + coefficient[3]*x_axis**3
+#The model is used to predict values on the test set, 
+y_pred = model.predict(X_poly_test)
+#calculing the mean of the absolute values of the errors between a model's predictions and the true values (to assess the model's performance on the test set).
+mae = mean_absolute_error(y_test, y_pred)
+print("\nMean absolute error: ", mae)
+#In my case the Mean Absolute Error is 1 808 622 which is relatively high. However, the followers value range is 115 998 928, so this MAE can be considered acceptable.
 
-plt.scatter(clean_artists_df["Popularity"], clean_artists_df["Followers"], color = 'b')
-plt.plot(x_axis, response, color = 'r')
+
+#Lets do the same thing with our training set
+y_pred_train = model.predict(X_poly_train)
+mae2 =mean_absolute_error(y_train, y_pred_train)
+print("Mean absolute error for the training set: ", mae2)
+#the Mean Absolute Error is 1 719 868, we have almost the same than our test set so our model is well train (no overfitting)
+
+
+#To predict the number of followers for a specific popularity rate(e.g. 90)
+popularity_to_predict = 90
+predicted_followers = model.predict(poly.fit_transform([[popularity_to_predict]])) #poly.transform est utilisé pour transformer la nouvelle valeur de popularité en caractéristiques polynomiales compatibles avec le modèle qui a été ajusté précédemment
+print("\nPrediction for popularity  ",popularity_to_predict,": ", predicted_followers[0])
+
+
+#PREDICTION PLOT
+
+# Calculating curve values for the x-axis
+x_axis = np.arange(5,x_train.max(),0.1)
+#response = intercept + coefficient[1]* x_axis + coefficient[2]*x_axis**2 + coefficient[3]*x_axis**3
+
+#Transforming polynomial features for the entire x-axis and Predicting y values for the entire x-axis using the trained model
+x_axis_poly = poly.fit_transform(x_axis.reshape(-1, 1))
+y_pred_for_x_axis_value = model.predict(x_axis_poly)
+
+#fig7 = plt.figure(figsize=(8,6))
+#Plot the actual data 
+plt.scatter(x_train, y_train, color='b', label='Train data')
+plt.scatter(x_test, y_test, color='g', label='Test data')
+#Plot the predicted model
+plt.plot(x_axis, y_pred_for_x_axis_value, color = 'r', label='Training predictions')
+plt.xlabel('Popularity')
+plt.ylabel('Followers')
+plt.legend()
 #plt.show()
-
-
-###
-
-y_pred = lin.predict(X_test_poly)
-mean_absolute_error(y_test, y_pred)
-
-
-y_pred_train = lin.predict(X_poly_train)
-mean_absolute_error(y_train, y_pred_train)
 
 
 
