@@ -4,74 +4,96 @@ import matplotlib.pyplot as plt
 import seaborn as sb
 import streamlit as st
 
-#Reading Dataset
+st.header("Programming for Data Science - Final Project")
+st.subheader("Explore the dataset part")
+st.write("We'll start by exploring the dataset, finding correlations between attributes and finding some interesting aspects that justify the next parts of the analysis.")
+
+
+#DATASET EXPLORATION
+
 
 #Load the data
 artists_df = pd.read_csv("Artists.csv")
 
 #we look at the number of observations(rows) and features(columns) in the dataset
 print("shape: ",artists_df.shape)
-#There are 9488 observations and 9 features in our dataset
+print("There are 9488 observations and 9 features in our dataset")
+st.write("The shape of the dataset is: ",artists_df.shape,". We 9488 observations and 9 features in our dataset")
 
 #View the data
 print("\nhead: \n", artists_df.head())
 print("\ntail: \n", artists_df.tail())
+st.write("Here is the dataset: ")
+st.write(artists_df)
 
 #basic information about the dataset
 artists_df.info()
-#Gender, Country have missing values
-#Name, Gender, Country, Genres, URI are object datatype
-#Age, Popularity, Followers are int64
+print("Thanks to this informations, we know that: \n-Gender, Country have missing values. \n-Name, Gender, Country, Genres, URI are object datatype. \n-Age, Popularity, Followers are int64")
 
 #display all the columns
 print("\nColumn: \n", artists_df.columns)
+st.write("The column are: ",artists_df.columns)
+st.write("However, some colonne don't add value to our analysis. So we drop them")
 
 #we drop columns which don't add value to our analysis. (columns that we never use)
 artists_df = artists_df.drop(['Genres','URI'], axis = 1)
 #display all the columns after dropping
 print("\nColumn: \n", artists_df.columns)
-
+st.write("The new column are: ",artists_df.columns)
 
 #Check for the duplicates values
 print("\nDuplicate values: \n", artists_df.duplicated().sum()) 
-#the function returned ‘0’ --> not a single duplicate value 
+print("the function returned 0 --> not a single duplicate value")
+st.write("Let's check the number of duplicated value: ",artists_df.duplicated().sum()," We don't have a single duplicate value !")
 
 #Check the unique value of each column
 print("\nNumber of unique value for each column: \n", artists_df.nunique())
-#name have one duplicate value
+print("The column Name have one duplicate value, it's not normal")
 #id only unique value, uri also, it is interesting ?
+st.write("Now, let's see the number of unique value for each column: ", artists_df.nunique(), " The column name have one duplicate value, it's not normal")
 
 #there is 1 duplicated value in Name, it's not normal so lets see which one is it and let's delete the weird one
 print(artists_df.loc[artists_df.duplicated(subset=['Name'])])
+st.write("Let's see which one is it",artists_df.loc[artists_df.duplicated(subset=['Name'])], " And delete it")
 print(artists_df.query('Name== "HANA"'))
 artists_df = artists_df.drop(8575)
 #print(artists_df.query('Name== "HANA"'))
 print(artists_df.loc[artists_df.duplicated(subset=['Name'])])
+st.write("So now when we look for a duplicated value in Name column, we get: ",artists_df.loc[artists_df.duplicated(subset=['Name'])])
+
 
 
 #Check for null values
 print("\nNumber of null values for each column: \n", artists_df.isnull().sum())
+st.write("The number of null values for each column: ",artists_df.isnull().sum())
 
 percentage_missing_value = (artists_df.isnull().sum()/(len(artists_df)))*100 
 print("\nPercentage of missing values in each column: \n", percentage_missing_value)
-#There are some null value in column Gender(17%) and Contry(34%)
-#there are too much null value to just delete it so let's remplace by "unknow" value
-#EST CE QUE JE LES SUPPRIME ????
+print("There are some null value in column Gender(17%) and Contry(34%). But there are too much to just delete it so let's remplace by 'unknow' value" )
+st.write("And as a percentage: ",percentage_missing_value)
+st.write("We can see that there are a lot of null value in colum Gender(17%) and Country(34%). There are too much null value to just delete it so let's remplace by 'unknow' value")
 
 #print("\nNull values for Gender: \n", artists_df[artists_df.Gender.isnull()])
 #print("\nNull values for Country: \n", artists_df[artists_df.Country.isnull()])
-#pour supprimer les valeur null d'une colonne
-#artists_df.dropna(subset=['Country'], inplace=True)
-artists_df.fillna("unknow", inplace = True)
 
-#############################################################################CHOISIR ENTRE LES 2 METHODES
+artists_df.fillna("unknow", inplace = True)
+st.write("So now we don't have anymore null value: ", artists_df.isnull().sum())
+
+
+
+
+#DATASET CLEANING
+st.subheader("Clean up the dataset part")
+
 
 #print the description of the dataset
 print("\ndescrition of the dataset artists_df (1): \n", artists_df.describe().T)
-#age begin at 0, its weird and finish at 149 impossible
+print("The value of Age begin at 0, its weird and finish at 149 impossible !")
 #huge difference between the mean of followers and the maximum, maybe the maximum can be removed and the mean value is after the 75%
-#lets clean it
-#EST CE QUE JE SUPPRIME CEUX AVEC 0 DE POPOULARITE MSKN
+print("\nLet's clean it")
+st.write("The description of the dataset is: ", artists_df.describe().T)
+st.write("We can see that the value of the column age begin at 0, its weird because we can't sing if we're 0. More over, its finish at 149, impossible. Let's clean it !")
+
 
 
 #mask to have only person are more than 5 and les than 100
@@ -129,6 +151,11 @@ fig_0.suptitle('Frequency of each age for artists', fontsize=16)
 plt.tight_layout()
 #plt.show()
 
+st.write("I tried 2 methods to clean it: ")
+st.write("Replace all the outliers value by the mean of the clean dataset and we get this new description of the dataset: ",mean_clean_artists_df.describe().T)
+st.write("Replace the problematic values with samples from a normal distribution and we get this new description of the dataset: ",normal_clean_artist_df.describe().T)
+st.write("We can observe the difference by using these histogram: ",fig_0)
+
 
 #Let's look at the correlation matrix to see which numerical values are related.
 #lets take only numerical value (to avoid error)
@@ -137,13 +164,18 @@ artists_corr_df = normal_clean_artist_df[numerical_columns].corr()
 print("\ncorrelation matrix to see which numerical values are related (1 is really related, 0 is none): \n",artists_corr_df)
 
 #display the correlation matrix as a plot
-plt.figure(figsize=(8,6))
+fig_1 = plt.figure(figsize=(8,6))
 sb.heatmap(artists_corr_df, annot=True)
 #plt.show()
+st.write("Now let's see the correlation between each numerical column with the correlation matrix: ",fig_1)
+st.write("You can see that most of the columns don't have much to do with each other. But the ones with the most links together are the 'Followers' and 'Popularity' columns.")
 
 
 
-fig_1, axes = plt.subplots(3, 3, figsize=(10,8))
+#PLOTS
+
+
+fig_2, axes = plt.subplots(3, 3, figsize=(10,8))
 
 #calculating the occurrence of each gender
 male=0
@@ -261,15 +293,16 @@ axes[2,2].set_ylabel('Number of Followers')
 #axes[0,0].legend()
 plt.tight_layout()
 #plt.show()
+st.write("Now her you can see some interesting plots: ",fig_2)
+st.write("petite explication des schema")
 
 
 
 
-fig2 = sb.pairplot(normal_clean_artist_df, hue='Gender')
+fig_3 = sb.pairplot(normal_clean_artist_df, hue='Gender')
 sb.relplot(x="Popularity",y="Followers", hue='Gender', data = normal_clean_artist_df)
 #plt.show()
-#les deux truc les plus facile à prédire c'est la popularité en fonction des followers (ou le contraire)
-#à la limite l'age en fonction des follower mais bof bof enfaite
+st.write("Here you can see some interesting plots: (CA SAFFICHE PAS)",fig_3)
 
 
 
@@ -351,10 +384,10 @@ plt.ylabel('Followers')
 plt.legend()
 #plt.show()
 
+st.write("")
 
 
-st.header("Programming for Data Science - Final Project")
-st.subheader("Subheader")
+
 st.code('''    
 plt.scatter(clean_artists_df["Popularity"], clean_artists_df["Followers"], color = 'b')
 plt.plot(x_axis, response, color = 'r')
@@ -367,17 +400,15 @@ if st.sidebar.checkbox("Show fig"):
     #on peut le faire qu'avec les object qui peuve etre print
     st.write("A __short__ explanation of the project")
     #pas besoin de faire plt.show pour monter les graphique 
-    st.write(fig_1)
+    st.write(fig_2)
 
 col_1, col_2 = st.columns(2)
 with col_1:
     st.write("Column 1: ")
-    st.write(fig_1)
+    st.write(fig_2)
     st.caption("Caption")
 
 with col_2:
     st.write("Column 2: ")
-    st.write(fig_1)
+    st.write(fig_2)
 
-
-#si on utilise le graphe de la frequence des followers, faire un nettoyage des trop grande données
