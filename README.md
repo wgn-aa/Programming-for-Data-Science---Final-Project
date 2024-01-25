@@ -13,14 +13,14 @@ You can also run 'streamlit run final_project.py' to get a better presentation o
 ## The Dataset
 
 The dataset used is 'Artist', this dataset from Kaggle provides data on the 10,000 most listened-to artists in the USA. It is composed of 9 columns/features:
-    * the artist's name: normally a unique value,
-    * his identifier, a unique value,
-    * gender, which can be male, female, other for those who consider themselves neither male nor female and mixed for music groups,
+*the artist's name: normally a unique value,
+* his identifier, a unique value,
+    *gender, which can be male, female, other for those who consider themselves neither male nor female and mixed for music groups,
     * the artist's age,
-    * the country he comes from,
-    * the musical genre,
-    * popularity rated from 0 to 100,
-    * number of followers,
+**the country he comes from,
+** the musical genre,
+    **popularity rated from 0 to 100,
+    ** number of followers,
     * URI
 
 ## Projet guideline
@@ -58,15 +58,6 @@ For better visualization, histograms of each step are plotted and displayed.
 The correlation matrix between each numerical column in the dataset is displayed, along with the correlation graph, so that you can see which columns are most closely related.
 
 ### Interesting Plot
-
-
--la distribution des ages des artistes après le nettoyage selectionné
--le taux de popularité en fonction du genre
--le nombre total de followers pour chaque genre
--le mean du nombre de followers pour chaque genre car comme vu avec la distribution des genre, étant donné que les male ont plus d'artiste, le nombre total de followers est biaisé
--le taux moyen de popularité pour les 30 pays avec le plus d'artiste écouté au USA
--le taux moyen de popularité pour les 30 pays avec le moins d'artiste écouté au USA
--Le taux de popularité selon le nombre de followers
 
 Then we plot the graphs that look interesting, some of which are commented on in the terminal.
 The different graphs displayed are:
