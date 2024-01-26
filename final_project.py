@@ -32,14 +32,16 @@ print("Thanks to this informations, we know that: \n-Gender, Country have missin
 
 #display all the columns
 print("\nColumn: \n", artists_df.columns)
-st.write("The column are: ",artists_df.columns)
-st.write("However, some colonne don't add value to our analysis. So we drop them")
+col_1, col_2 = st.columns(2)
+with col_1:
+    st.write("The column are: ",artists_df.columns)
 
 #we drop columns which don't add value to our analysis. (columns that we never use)
 artists_df = artists_df.drop(['Genres','URI'], axis = 1)
 #display all the columns after dropping
 print("\nColumn: \n", artists_df.columns)
-st.write("The new column are: ",artists_df.columns)
+with col_2:
+    st.write("However, some colonne don't add value to our analysis. So we drop them: ",artists_df.columns)
 
 #Check for the duplicates values
 print("\nDuplicate values: \n", artists_df.duplicated().sum()) 
@@ -49,7 +51,6 @@ st.write("Let's check the number of duplicated value: ",artists_df.duplicated().
 #Check the unique value of each column
 print("\nNumber of unique value for each column: \n", artists_df.nunique())
 print("The column Name have one duplicate value, it's not normal")
-#id only unique value, uri also, it is interesting ?
 st.write("Now, let's see the number of unique value for each column: ", artists_df.nunique(), " The column name have one duplicate value, it's not normal")
 
 #there is 1 duplicated value in Name, it's not normal so lets see which one is it and let's delete the weird one
@@ -62,15 +63,18 @@ print(artists_df.loc[artists_df.duplicated(subset=['Name'])])
 st.write("So now when we look for a duplicated value in Name column, we get: ",artists_df.loc[artists_df.duplicated(subset=['Name'])])
 
 
-
 #Check for null values
 print("\nNumber of null values for each column: \n", artists_df.isnull().sum())
-st.write("The number of null values for each column: ",artists_df.isnull().sum())
+col1, col2 = st.columns(2)
+with col1:
+    st.write("The number of null values for each column: ",artists_df.isnull().sum())
 
 percentage_missing_value = (artists_df.isnull().sum()/(len(artists_df)))*100 
 print("\nPercentage of missing values in each column: \n", percentage_missing_value)
 print("There are some null value in column Gender(17%) and Contry(34%). But there are too much to just delete it so let's remplace by 'unknow' value" )
-st.write("And as a percentage: ",percentage_missing_value)
+with col2:
+    st.write("And as a percentage: ",percentage_missing_value)
+
 st.write("We can see that there are a lot of null value in colum Gender(17%) and Country(34%). There are too much null value to just delete it so let's remplace by 'unknow' value")
 
 #print("\nNull values for Gender: \n", artists_df[artists_df.Gender.isnull()])
@@ -149,7 +153,7 @@ ax_4.set_title('replacing value with samples from a normal distribution')
 
 fig_0.suptitle('Frequency of each age for artists', fontsize=16)
 plt.tight_layout()
-#plt.show()
+plt.show()
 
 st.write("I tried 2 methods to clean it: ")
 st.write("Replace all the outliers value by the mean of the clean dataset and we get this new description of the dataset: ",mean_clean_artists_df.describe().T)
@@ -157,6 +161,7 @@ st.write("Replace the problematic values with samples from a normal distribution
 st.write("We can observe the difference by using these histogram: ",fig_0)
 
 
+st.subheader("Correlation matrix")
 #Let's look at the correlation matrix to see which numerical values are related.
 #lets take only numerical value (to avoid error)
 numerical_columns = normal_clean_artist_df.select_dtypes(include=['int64']).columns
@@ -166,13 +171,15 @@ print("\ncorrelation matrix to see which numerical values are related (1 is real
 #display the correlation matrix as a plot
 fig_1 = plt.figure(figsize=(8,6))
 sb.heatmap(artists_corr_df, annot=True)
-#plt.show()
+plt.show()
 st.write("Now let's see the correlation between each numerical column with the correlation matrix: ",fig_1)
 st.write("You can see that most of the columns don't have much to do with each other. But the ones with the most links together are the 'Followers' and 'Popularity' columns.")
 
 
 
+
 #PLOTS
+st.subheader("Plot")
 
 
 fig_2, axes = plt.subplots(3, 3, figsize=(10,8))
@@ -208,8 +215,6 @@ artist_filtered_country_df = normal_clean_artist_df[mask_country]
 
 #plot bar to show the number of countries among the 30 with the most artists
 artist_filtered_country_df.Country.value_counts().nlargest(32).plot(kind='bar',ax=axes[0,1])
-#axes[0,1].bar(top_30_players.index, top_30_players)
-#axes[0,1].bar(artist_filtered_country_df.Country.value_counts().index, artist_filtered_country_df.Country.value_counts())
 axes[0,1].set_title('Distribution in the top 30 countries')
 axes[0,1].set_xticklabels(axes[0,1].get_xticklabels(),rotation=90, fontsize=6)# Rotate x-axis labels for better visibility
 
@@ -247,16 +252,12 @@ axes[1,2].bar(followers_per_gender['Gender'],followers_per_gender['Followers'])
 axes[1,2].set_title('Mean number of followers by gender')
 axes[1,2].set_xlabel('Gender')
 axes[1,2].set_ylabel('Number of followers')
-#we can see that people who consider themselves neither male nor female have a higher popularity rating than others, followed by men who have a slightly higher rating than women and mixed but for the 3 of them, its almost the same. 
-#However, when we look at the total number of followers, we see that men are much higher than the others (due to the fact that there are more of them) and that the others have almost none compared to the other categories, 
-#and when we see the 3rd graph which gives the median number of followers for each gender, we see that it's the "other" who have a higher median number of followers, followed by women. 
-#This is because there are very few people in the "other" category, but they're generally artists with a strong following.
+print("we can see that people who consider themselves neither male nor female have a higher popularity rating than others, followed by men who have a slightly higher rating than women and mixed but for the 3 of them, its almost the same. ")
+print("However, when we look at the total number of followers, we see that men are much higher than the others (due to the fact that there are more of them) and that the others have almost none compared to the other categories, ")
+print("and when we see the 3rd graph which gives the median number of followers for each gender, we see that it's the 'other' who have a higher median number of followers, followed by women. ")
+print("This is because there are very few people in the 'other' category, but they're generally artists with a strong following.")
 
 
-'''
-artist_filtered_country_df.groupby("Gender").mean().sort_values(by= artist_filtered_country_df['Country'].value_counts(), ascending = False).head(30)
-artists_df.groupby(['Country', 'Name']).mean()
-'''
 # Count occurrences number by country 
 occurrences_by_country = artist_filtered_country_df['Country'].value_counts().reset_index()
 occurrences_by_country.columns = ['Country', 'occurrences']
@@ -279,8 +280,7 @@ axes[2,0].set_xticklabels(axes[2,0].get_xticklabels(),rotation=90, fontsize=6)
 axes[2,1].bar(popularity_by_country2["Country"],popularity_by_country2["Popularity"])
 axes[2,1].set_title('Popularity of the last 30 countries')
 axes[2,1].set_xticklabels(axes[2,1].get_xticklabels(),rotation=90, fontsize=6)
-#We note that for the top 30 countries there are only one or two popularity levels below 40, 
-#while for the 30 countries with the fewest artists listened to in the USA, almost half have a popularity level below 40.
+print("We note that for the top 30 countries there are only one or two popularity levels below 40, while for the 30 countries with the fewest artists listened to in the USA, almost half have a popularity level below 40.")
 
 
 #Plot scatter to show the popularity by number of followers
@@ -292,19 +292,33 @@ axes[2,2].set_ylabel('Number of Followers')
 
 #axes[0,0].legend()
 plt.tight_layout()
-#plt.show()
+plt.show()
 st.write("Now her you can see some interesting plots: ",fig_2)
-st.write("petite explication des schema")
+st.write("For the **plots 4, 5 and 6**, we can see that people who consider themselves neither male nor female have a higher popularity rating than others, followed by men who have a slightly higher rating than women and mixed but for the 3 of them, its almost the same.")
+st.write('''However, when we look at the total number of followers, we see that men are much higher than the others (due to the fact that there are more of them) and that the others have almost none compared to the other categories, 
+and when we see the 3rd graph which gives the median number of followers for each gender, we see that it's the "other" who have a higher median number of followers, followed by women.''')
+st.write("This is because there are very few people in the 'other' category, but they're generally artists with a strong following.")
+st.write("For the **plots 7 and 8**, we note that for the top 30 countries there are only one or two popularity levels below 40, while for the 30 countries with the fewest artists listened to in the USA, almost half have a popularity level below 40.")
+         
 
 
 
+st.subheader("Plot pairwise relationships in a dataset")
 
 fig_3 = sb.pairplot(normal_clean_artist_df, hue='Gender')
-sb.relplot(x="Popularity",y="Followers", hue='Gender', data = normal_clean_artist_df)
-#plt.show()
-st.write("Here you can see some interesting plots: (CA SAFFICHE PAS)",fig_3)
+fig_4 = sb.relplot(x="Popularity",y="Followers", hue='Gender', data = normal_clean_artist_df)
+plt.show()
+st.pyplot(fig_3)
+st.write("Let's take a look at the 8th plot")
+st.pyplot(fig_4)
+st.write("We can see that the data follow a pattern. Let's do a regression model to predict these continuous values.")
 
 
+
+
+
+# REGRESSION MODEL
+st.subheader("The regression model")
 
 
 #Split for Training and Testing
@@ -338,6 +352,8 @@ model = model.fit(X_poly_train, y_train)
 
 print("\nCoefficient of the model: ",model.coef_)
 print("Intercept of the model: ",model.intercept_)
+st.write("The coefficient of the model and the intercept are: ")
+st.write("coefficient: ",model.coef_," intercept: ",model.intercept_)
 
 
 #PREDICTION 
@@ -347,14 +363,18 @@ y_pred = model.predict(X_poly_test)
 #calculing the mean of the absolute values of the errors between a model's predictions and the true values (to assess the model's performance on the test set).
 mae = mean_absolute_error(y_test, y_pred)
 print("\nMean absolute error: ", mae)
-#In my case the Mean Absolute Error is 1 808 622 which is relatively high. However, the followers value range is 115 998 928, so this MAE can be considered acceptable.
+print("In my case the Mean Absolute Error is 1 808 622 which is relatively high. However, the followers value range is 115 998 928, so this MAE can be considered acceptable.")
+st.write("The **Mean Absolute Error** between a model's predictions and the true values for the test set is: ",mae)
+st.write("In my case the Mean Absolute Error is 1 808 622 which is relatively high. However, the followers value range is 115 998 928, so this MAE can be considered acceptable.")
 
 
 #Lets do the same thing with our training set
 y_pred_train = model.predict(X_poly_train)
 mae2 =mean_absolute_error(y_train, y_pred_train)
 print("Mean absolute error for the training set: ", mae2)
-#the Mean Absolute Error is 1 719 868, we have almost the same than our test set so our model is well train (no overfitting)
+print("The Mean Absolute Error is 1 719 868, we have almost the same than our test set so our model is well train (no overfitting)")
+st.write("And for the training set we have: ",mae2)
+st.write("The Mean Absolute Error is 1 719 868, we have almost the same than our test set so our model is well train (no overfitting)")
 
 
 #To predict the number of followers for a specific popularity rate(e.g. 90)
@@ -362,18 +382,21 @@ popularity_to_predict = 90
 predicted_followers = model.predict(poly.fit_transform([[popularity_to_predict]])) #poly.transform est utilisé pour transformer la nouvelle valeur de popularité en caractéristiques polynomiales compatibles avec le modèle qui a été ajusté précédemment
 print("\nPrediction for popularity  ",popularity_to_predict,": ", predicted_followers[0])
 
+slider_value  = st.slider("Choose your popularity rank",6, 100)
+predicted_followers2 = model.predict(poly.fit_transform([[slider_value]]))
+st.write("The prediction for the number of followers is: ",predicted_followers2)
 
 #PREDICTION PLOT
 
 # Calculating curve values for the x-axis
-x_axis = np.arange(5,x_train.max(),0.1)
+x_axis = np.arange(6,105,0.1)
 #response = intercept + coefficient[1]* x_axis + coefficient[2]*x_axis**2 + coefficient[3]*x_axis**3
 
 #Transforming polynomial features for the entire x-axis and Predicting y values for the entire x-axis using the trained model
 x_axis_poly = poly.fit_transform(x_axis.reshape(-1, 1))
 y_pred_for_x_axis_value = model.predict(x_axis_poly)
 
-#fig7 = plt.figure(figsize=(8,6))
+fig_5 = plt.figure(figsize=(8,6))
 #Plot the actual data 
 plt.scatter(x_train, y_train, color='b', label='Train data')
 plt.scatter(x_test, y_test, color='g', label='Test data')
@@ -382,33 +405,8 @@ plt.plot(x_axis, y_pred_for_x_axis_value, color = 'r', label='Training predictio
 plt.xlabel('Popularity')
 plt.ylabel('Followers')
 plt.legend()
-#plt.show()
-
-st.write("")
-
-
-
-st.code('''    
-plt.scatter(clean_artists_df["Popularity"], clean_artists_df["Followers"], color = 'b')
-plt.plot(x_axis, response, color = 'r')
 plt.show()
-''')
 
-#sidebar c'est la fenetre sur le coté qu'on ouvre ou qu'on ferme pour gagner de la place
-#checkbox, il faut cocher pour que les valeur à l'intérieur de la condition s'affiche
-if st.sidebar.checkbox("Show fig"):
-    #on peut le faire qu'avec les object qui peuve etre print
-    st.write("A __short__ explanation of the project")
-    #pas besoin de faire plt.show pour monter les graphique 
-    st.write(fig_2)
+st.write(fig_5)
 
-col_1, col_2 = st.columns(2)
-with col_1:
-    st.write("Column 1: ")
-    st.write(fig_2)
-    st.caption("Caption")
-
-with col_2:
-    st.write("Column 2: ")
-    st.write(fig_2)
 
